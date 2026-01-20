@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maaef Studios | Engineering Attention</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CORE VARIABLES --- */
+        :root {
+            --brand-red: #C41E3A;
+            --brand-dark: #050505;
+        }
+
+        /* --- GLOBAL RESET --- */
+        body {
+            background-color: var(--brand-dark);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: default;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Hide system cursor when custom one is active */
+        body.use-custom-cursor {
+            cursor: none;
+        }
+
+        .serif { font-family: 'Playfair Display', serif; }
+
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot, .cursor-circle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0; 
+            transition: opacity 0.3s ease;
+        }
+
+        body.use-custom-cursor .cursor-dot, 
+        body.use-custom-cursor .cursor-circle {
+            opacity: 1;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+        }
+
+        .cursor-circle {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: width 0.3s, height 0.3s, background-color 0.3s, opacity 0.3s;
+        }
+
+        body.hovering .cursor-circle {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(196, 30, 58, 0.5);
+            border-color: transparent;
+            mix-blend-mode: difference;
+        }
+
+        /* --- TEXT GLOW --- */
+        .glow-active {
+            text-shadow: 0 0 10px var(--brand-red), 0 0 30px var(--brand-red), 0 0 50px var(--brand-red);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .glow-white:hover {
+            text-shadow: 0 0 10px white, 0 0 20px white;
+            color: white;
+        }
+
+        /* --- HERO FOG EFFECT --- */
+        .video-fog {
+            filter: blur(20px) brightness(0.4);
+            transform: scale(1.1);
+            transition: all 0.6s ease-out;
+            will-change: filter, transform;
+        }
+
+        .video-fog.is-active {
+            filter: blur(0px) brightness(1.0) !important;
+            transform: scale(1.0) !important;
+        }
+
+        /* --- 3D TILT CARDS --- */
+        .perspective-container {
+            perspective: 1000px;
+        }
+        .floating-card {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
+
+        /* --- KINETIC MENU --- */
+        #kinetic-menu {
+            transform: translateY(-100%);
+            transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+        
+        .menu-link span {
+            display: block;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Drawing Canvas inside Menu */
+        #drawing-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5; 
+            pointer-events: auto; 
+            cursor: crosshair;
+        }
+
+        /* --- ACCORDION LIST STYLES (SPOTLIGHT) --- */
+        .accordion-item {
+            transition: all 0.4s ease;
+        }
+        .accordion-img {
+            height: 0;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .accordion-item:hover .accordion-img {
+            height: 300px;
+            opacity: 1;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .spotlight-group:hover .accordion-item {
+            opacity: 0.3;
+        }
+        .spotlight-group:hover .accordion-item:hover {
+            opacity: 1;
+            border-color: #C41E3A;
+        }
+
+        /* --- TEAM REVEAL ANIMATIONS --- */
+        #team-preview {
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        #team-manifesto {
+            transition: opacity 0.4s ease;
+        }
+        .showing-member #team-manifesto {
+            opacity: 0;
+        }
+        .showing-member #team-preview {
+            opacity: 1;
+        }
+        
+        ::-webkit-scrollbar { width: 0px; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-circle"></div>
+
+    <nav class="fixed top-0 w-full z-[60] px-6 md:px-12 py-8 flex justify-between items-center mix-blend-difference text-white">
+        <a href="#" class="text-2xl font-bold tracking-tighter hover-trigger relative z-[60]">
+            Maaef<span class="text-red-600">.</span>
+        </a>
+        
+        <div class="flex items-center gap-6 z-[60]">
+            <a href="#contact" class="hidden md:block text-xs uppercase tracking-widest hover:text-red-600 transition hover-trigger font-bold">
+                Start Project
+            </a>
+            
+            <button onclick="toggleMenu()" class="group flex flex-col items-end gap-[6px] w-12 hover-trigger p-2">
+                <span id="line1" class="w-full h-[2px] bg-white transition-all duration-300 group-hover:w-3/4"></span>
+                <span id="line2" class="w-2/3 h-[2px] bg-white transition-all duration-300 group-hover:w-full"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div id="kinetic-menu" class="fixed inset-0 z-50 bg-[#050505] flex flex-col justify-center items-center overflow-hidden">
+        <canvas id="drawing-canvas"></canvas>
+        <div class="absolute inset-0 opacity-20 pointer-events-none z-0" style="background-image: url('https://grainy-gradients.vercel.app/noise.svg');"></div>
+        <div class="flex flex-col gap-4 text-center relative z-10 pointer-events-none">
+            <a href="#studio" onclick="toggleMenu()" class="menu-link group relative overflow-hidden inline-block hover-trigger cursor-pointer h-[80px] md:h-[130px] pointer-events-auto">
+                <span class="serif text-6xl md:text-9xl text-white group-hover:-translate-y-full">Studio</span>
+                <span class="absolute top-0 left-0 serif text-6xl md:text-9xl text-red-600 translate-y-full group-hover:translate-y-0">Studio</span>
+            </a>
+            <a href="#work" onclick="toggleMenu()" class="menu-link group relative overflow-hidden inline-block hover-trigger cursor-pointer h-[80px] md:h-[130px] pointer-events-auto">
+                <span class="serif text-6xl md:text-9xl text-white group-hover:-translate-y-full">Expertise</span>
+                <span class="absolute top-0 left-0 serif text-6xl md:text-9xl text-gray-500 translate-y-full group-hover:translate-y-0">Expertise</span>
+            </a>
+            <a href="#contact" onclick="toggleMenu()" class="menu-link group relative overflow-hidden inline-block hover-trigger cursor-pointer h-[80px] md:h-[130px] pointer-events-auto">
+                <span class="serif text-6xl md:text-9xl text-white group-hover:-translate-y-full">Contact</span>
+                <span class="absolute top-0 left-0 serif text-6xl md:text-9xl text-red-600 translate-y-full group-hover:translate-y-0">Contact</span>
+            </a>
+        </div>
+        <div class="absolute bottom-28 text-[10px] uppercase tracking-[0.3em] text-neutral-700 animate-pulse pointer-events-none">
+            [ LEAVE A TRACE ]
+        </div>
+        <div class="absolute bottom-12 flex justify-between w-full px-12 text-xs uppercase tracking-widest text-gray-600 pointer-events-none">
+            <span>Lucknow, IN</span>
+            <span id="live-clock">00:00:00</span>
+        </div>
+    </div>
+
+    <section class="relative h-screen flex flex-col justify-center px-6 md:px-12 overflow-hidden">
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <video id="hero-video" autoplay loop muted playsinline class="video-fog w-full h-full object-cover">
+                <source src="trailer.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div id="hero-wrapper" class="relative z-30 mt-10 md:mt-20 w-fit cursor-pointer">
+            <h1 id="hero-header" class="hover-trigger w-fit serif text-6xl md:text-9xl mb-4 md:mb-6 leading-[0.9] mix-blend-overlay opacity-90 transition-all duration-300">
+                <a href="https://www.instagram.com/maaef.studios/" target="_blank" rel="noopener noreferrer" class="block">
+                    <span id="scramble-text">Maaef</span><br>
+                    <span class="italic text-white opacity-100">Studios.</span>
+                </a>
+            </h1>
+            <p class="text-gray-300 text-base md:text-xl max-w-lg font-light leading-relaxed border-l-2 border-red-600 pl-6 mt-6 md:mt-8 pointer-events-none">
+                We engineer attention. A new-era media house.
+            </p>
+        </div>
+    </section>
+
+    <section id="studio" class="py-24 md:py-36 px-6 md:px-12 bg-neutral-900 text-white relative z-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 relative" id="team-section">
+            <div class="relative h-[400px] md:h-auto flex flex-col justify-center">
+                <div id="team-manifesto" class="absolute inset-0 flex flex-col justify-center">
+                    <h2 class="serif text-4xl md:text-6xl mb-8 leading-tight text-neutral-500">
+                        The<br>
+                        <span class="text-white">Collective.</span>
+                    </h2>
+                    <p class="text-gray-400 text-lg leading-relaxed max-w-md">
+                        We believe in lean, hyper-specialized crews. No bloat, no middle-management, just pure creative execution. 
+                        <br><br>
+                        When you hire Maaef, you don't get an account manager. You get the artists directly.
+                    </p>
+                </div>
+                <div id="team-preview" class="absolute inset-0 flex flex-col justify-center items-center md:items-start">
+                    <div class="w-full max-w-md aspect-[4/5] overflow-hidden bg-gray-800 mb-6 relative">
+                        <img id="preview-img" src="" class="w-full h-full object-cover grayscale" alt="Team Member">
+                        <div class="absolute inset-0 bg-red-900/10 mix-blend-overlay"></div>
+                    </div>
+                    <p id="preview-quote" class="serif text-2xl md:text-3xl italic text-white leading-tight">
+                        "Your tagline goes here."
+                    </p>
+                </div>
+            </div>
+             <div class="flex flex-col justify-center">
+                
+                <div class="team-member border-b border-white/20 pb-6 mb-6 group cursor-pointer hover-trigger"
+                     data-img="Ankur.png" 
+                     data-tagline="&quot;Engineering the invisible structure of attention.&quot;">
+                    
+                    <span class="block text-xs uppercase tracking-widest text-red-600 mb-1 group-hover:text-white transition-colors">Founder / Creative Director</span>
+                    <div class="flex justify-between items-center">
+                        <span class="serif text-4xl md:text-6xl text-gray-400 group-hover:text-white group-hover:translate-x-4 transition-all duration-300">Ankur</span>
+                        <span class="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    </div>
+                </div>
+
+                <div class="team-member border-b border-white/20 pb-6 mb-6 group cursor-pointer hover-trigger"
+                     data-img="Manas.png" 
+                     data-tagline="&quot;Rhythm is the heartbeat of visual storytelling.&quot;">
+                    
+                    <span class="block text-xs uppercase tracking-widest text-gray-500 mb-1 group-hover:text-white transition-colors">Lead Editor</span>
+                    <div class="flex justify-between items-center">
+                        <span class="serif text-4xl md:text-6xl text-gray-400 group-hover:text-white group-hover:translate-x-4 transition-all duration-300">Manas</span>
+                        <span class="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    </div>
+                </div>
+
+                <div class="team-member border-b border-white/20 pb-6 mb-6 group cursor-pointer hover-trigger"
+                     data-img="Sam.png" 
+                     data-tagline="&quot;Silence is the loudest sound in the room.&quot;">
+                    
+                    <span class="block text-xs uppercase tracking-widest text-gray-500 mb-1 group-hover:text-white transition-colors">Sound Design</span>
+                    <div class="flex justify-between items-center">
+                        <span class="serif text-4xl md:text-6xl text-gray-400 group-hover:text-white group-hover:translate-x-4 transition-all duration-300">Sam</span>
+                        <span class="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    </div>
+                </div>
+
+                <div class="team-member border-b border-white/20 pb-6 group cursor-pointer hover-trigger"
+                     data-img="Pumba.png" 
+                     data-tagline="&quot;Just here for the Vibes.&quot;">
+                    
+                    <span class="block text-xs uppercase tracking-widest text-gray-500 mb-1 group-hover:text-white transition-colors">Strategy</span>
+                    <div class="flex justify-between items-center">
+                        <span class="serif text-4xl md:text-6xl text-gray-400 group-hover:text-white group-hover:translate-x-4 transition-all duration-300">Pumba</span>
+                        <span class="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="work" class="py-24 md:py-36 px-6 md:px-12 bg-[#050505] relative z-20">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-white/10 pb-12">
+            <h2 class="serif text-5xl md:text-7xl">Core<br>Expertise.</h2>
+            <div class="max-w-md text-right mt-8 md:mt-0">
+                <p class="text-gray-400 text-sm leading-relaxed border-r-2 border-red-600 pr-6">
+                    Mastering the three pillars of modern retention.<br>
+                    Hover below to explore.
+                </p>
+            </div>
+        </div>
+        <div class="flex flex-col spotlight-group">
+            <div class="accordion-item border-b border-white/10 py-8 cursor-pointer hover-trigger group">
+                <div class="flex justify-between items-center">
+                    <h3 class="serif text-4xl md:text-6xl text-white transition-colors duration-300">
+                        <span class="text-xs font-sans align-top mr-4 opacity-50 text-gray-400">01</span>
+                        Visual Rhythm
+                    </h3>
+                    <span class="text-3xl text-white font-light group-hover:text-red-600 group-hover:rotate-45 transition-all duration-300">+</span>
+                </div>
+                <div class="accordion-img w-full md:w-2/3 ml-auto relative overflow-hidden rounded-sm">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Editing">
+                    <div class="absolute bottom-6 left-6 text-white bg-black/50 backdrop-blur px-4 py-2 text-xs uppercase tracking-widest">Pacing • Transitions • Flow</div>
+                </div>
+            </div>
+            <div class="accordion-item border-b border-white/10 py-8 cursor-pointer hover-trigger group">
+                <div class="flex justify-between items-center">
+                    <h3 class="serif text-4xl md:text-6xl text-white transition-colors duration-300">
+                        <span class="text-xs font-sans align-top mr-4 opacity-50 text-gray-400">02</span>
+                        Sonic Depth
+                    </h3>
+                    <span class="text-3xl text-white font-light group-hover:text-red-600 group-hover:rotate-45 transition-all duration-300">+</span>
+                </div>
+                <div class="accordion-img w-full md:w-2/3 ml-auto relative overflow-hidden rounded-sm">
+                    <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Sound">
+                    <div class="absolute bottom-6 left-6 text-white bg-black/50 backdrop-blur px-4 py-2 text-xs uppercase tracking-widest">SFX • Immersion • Mastering</div>
+                </div>
+            </div>
+            <div class="accordion-item border-b border-white/10 py-8 cursor-pointer hover-trigger group">
+                <div class="flex justify-between items-center">
+                    <h3 class="serif text-4xl md:text-6xl text-white transition-colors duration-300">
+                        <span class="text-xs font-sans align-top mr-4 opacity-50 text-gray-400">03</span>
+                        Color Science
+                    </h3>
+                    <span class="text-3xl text-white font-light group-hover:text-red-600 group-hover:rotate-45 transition-all duration-300">+</span>
+                </div>
+                <div class="accordion-img w-full md:w-2/3 ml-auto relative overflow-hidden rounded-sm">
+                    <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Color">
+                    <div class="absolute bottom-6 left-6 text-white bg-black/50 backdrop-blur px-4 py-2 text-xs uppercase tracking-widest">Grading • Mood • Identity</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="min-h-screen flex items-center justify-center bg-black relative overflow-hidden py-20 px-6">
+        <div class="absolute inset-0 opacity-20 pointer-events-none z-0" style="background-image: url('https://grainy-gradients.vercel.app/noise.svg');"></div>
+        <div class="w-full max-w-4xl z-10 relative">
+            <h2 class="text-xs uppercase tracking-[0.3em] text-red-600 mb-20 text-center">Start the Project</h2>
+            <div id="form-container">
+                <div id="step-1" class="form-step transition-all duration-700">
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-6">Step 01 / 03</label>
+                    <h3 class="serif text-5xl md:text-7xl mb-12 leading-tight">What should we<br>call you?</h3>
+                    <input type="text" id="input-name" placeholder="Your Name" class="w-full bg-transparent border-b border-white/20 text-3xl md:text-6xl py-4 md:py-8 text-white placeholder-neutral-800 focus:outline-none focus:border-red-600 transition-colors duration-300 hover-trigger">
+                    <div class="flex justify-end mt-12">
+                        <button onclick="nextStep(1)" class="group flex items-center gap-4 text-xs uppercase tracking-widest hover:text-red-600 transition hover-trigger">
+                            Next Step <span class="text-2xl group-hover:translate-x-2 transition-transform">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="step-2" class="form-step hidden opacity-0 translate-y-10 transition-all duration-700">
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-6">Step 02 / 03</label>
+                    <h3 class="serif text-5xl md:text-7xl mb-12 leading-tight">What do you<br>need?</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="service-opt px-8 py-4 border border-white/20 rounded-full text-lg hover:border-red-600 hover:text-red-600 transition hover-trigger">Video Editing</button>
+                        <button class="service-opt px-8 py-4 border border-white/20 rounded-full text-lg hover:border-red-600 hover:text-red-600 transition hover-trigger">Branding</button>
+                        <button class="service-opt px-8 py-4 border border-white/20 rounded-full text-lg hover:border-red-600 hover:text-red-600 transition hover-trigger">Social Growth</button>
+                    </div>
+                    <div class="flex justify-end mt-12">
+                        <button onclick="nextStep(2)" class="group flex items-center gap-4 text-xs uppercase tracking-widest hover:text-red-600 transition hover-trigger">
+                            Next Step <span class="text-2xl group-hover:translate-x-2 transition-transform">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="step-3" class="form-step hidden opacity-0 translate-y-10 transition-all duration-700">
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-6">Step 03 / 03</label>
+                    <h3 class="serif text-5xl md:text-7xl mb-12 leading-tight">Where can we<br>reach you?</h3>
+                    <input type="text" id="input-email" placeholder="your@email.com" class="w-full bg-transparent border-b border-white/20 text-3xl md:text-6xl py-4 md:py-8 text-white placeholder-neutral-800 focus:outline-none focus:border-red-600 transition-colors duration-300 hover-trigger">
+                    <div class="flex justify-end mt-12">
+                        <button onclick="submitForm()" class="px-12 py-4 bg-red-600 text-white text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition duration-300 hover-trigger">
+                            Submit Inquiry
+                        </button>
+                    </div>
+                </div>
+
+                <div id="step-success" class="form-step hidden opacity-0 translate-y-10 transition-all duration-700 text-center flex flex-col items-center justify-center">
+                    <h3 class="serif text-6xl md:text-8xl mb-6 text-white leading-tight">Received.</h3>
+                    <p class="text-gray-400 text-lg md:text-xl uppercase tracking-widest">We'll take it from here.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-8 w-full flex justify-between px-6 md:px-12 text-[10px] uppercase tracking-widest text-gray-700 pointer-events-none">
+            <span>Maaef Studios</span>
+            <span onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="cursor-pointer pointer-events-auto hover-trigger glow-white transition-all duration-300">
+                Back to Top
+            </span>
+            <span>Lucknow, IN</span>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Custom Cursor
+            const dot = document.querySelector('.cursor-dot');
+            const circle = document.querySelector('.cursor-circle');
+            let cursorEnabled = false;
+
+            document.addEventListener('mousemove', (e) => {
+                if (!cursorEnabled) {
+                    document.body.classList.add('use-custom-cursor');
+                    cursorEnabled = true;
+                }
+                dot.style.left = e.clientX + 'px';
+                dot.style.top = e.clientY + 'px';
+                
+                setTimeout(() => {
+                    circle.style.left = e.clientX + 'px';
+                    circle.style.top = e.clientY + 'px';
+                }, 50);
+            });
+
+            // 2. Hover Triggers
+            document.querySelectorAll('.hover-trigger').forEach(trigger => {
+                trigger.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                trigger.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            });
+
+            // 3. INFINITE GLITCH LOGIC
+            const headerText = document.getElementById('scramble-text');
+            const headerContainer = document.getElementById('hero-header');
+            const chars = '!<>-_\\/[]{}—=+*^?#________';
+            const finalCookie = 'Maaef';
+            let glitchInterval;
+
+            function randomScramble() {
+                headerText.innerText = finalCookie.split('').map(() => {
+                    return chars[Math.floor(Math.random() * chars.length)]
+                }).join('');
+            }
+
+            function resolveText() {
+                let iterations = 0;
+                const interval = setInterval(() => {
+                    headerText.innerText = finalCookie.split('').map((letter, index) => {
+                        if(index < iterations) return finalCookie[index];
+                        return chars[Math.floor(Math.random() * chars.length)]
+                    }).join('');
+                    if(iterations >= finalCookie.length) clearInterval(interval);
+                    iterations += 1/3;
+                }, 30);
+            }
+
+            resolveText();
+
+            if(headerContainer) {
+                headerContainer.addEventListener('mouseenter', () => {
+                    headerContainer.classList.add('glow-active');
+                    clearInterval(glitchInterval);
+                    glitchInterval = setInterval(randomScramble, 50);
+                });
+
+                headerContainer.addEventListener('mouseleave', () => {
+                    headerContainer.classList.remove('glow-active');
+                    clearInterval(glitchInterval);
+                    resolveText();
+                });
+            }
+
+            // 4. HERO VIDEO REVEAL
+            const heroWrapper = document.getElementById('hero-wrapper');
+            const heroVideo = document.getElementById('hero-video');
+            if (heroWrapper && heroVideo) {
+                heroWrapper.addEventListener('mouseenter', () => heroVideo.classList.add('is-active'));
+                heroWrapper.addEventListener('mouseleave', () => heroVideo.classList.remove('is-active'));
+            }
+
+            // 5. KINETIC MENU & NEON DRAWING
+            const menu = document.getElementById('kinetic-menu');
+            const canvas = document.getElementById('drawing-canvas');
+            const ctx = canvas.getContext('2d');
+            let isMenuOpen = false;
+            let drawing = false;
+            let paths = []; 
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            window.toggleMenu = function() {
+                const line1 = document.getElementById('line1');
+                const line2 = document.getElementById('line2');
+                isMenuOpen = !isMenuOpen;
+                
+                if (isMenuOpen) {
+                    menu.style.transform = 'translateY(0)';
+                    line1.style.transform = 'rotate(45deg) translate(5px, 6px)';
+                    line2.style.transform = 'rotate(-45deg) translate(5px, -6px)';
+                    line2.style.width = '100%';
+                    requestAnimationFrame(animateDrawing);
+                } else {
+                    menu.style.transform = 'translateY(-100%)';
+                    line1.style.transform = 'none';
+                    line2.style.transform = 'none';
+                    line2.style.width = '66%';
+                    paths = [];
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            };
+
+            canvas.addEventListener('mousedown', (e) => {
+                drawing = true;
+                paths.push({ points: [{x: e.clientX, y: e.clientY}], state: 'drawing', opacity: 1, pulseVal: 0, pulseDir: 1, pulseCount: 0 });
+            });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!drawing) return;
+                paths[paths.length - 1].points.push({x: e.clientX, y: e.clientY});
+            });
+            window.addEventListener('mouseup', () => {
+                drawing = false;
+                if(paths.length > 0) paths[paths.length - 1].state = 'pulsing';
+            });
+
+            function animateDrawing() {
+                if (!isMenuOpen) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.shadowColor = '#C41E3A'; 
+
+                for (let i = paths.length - 1; i >= 0; i--) {
+                    const path = paths[i];
+                    if (path.points.length < 2) continue;
+
+                    if (path.state === 'pulsing') {
+                        path.pulseVal += 0.08 * path.pulseDir;
+                        if (path.pulseVal >= 1) { path.pulseVal = 1; path.pulseDir = -1; }
+                        if (path.pulseVal <= 0) { path.pulseVal = 0; path.pulseDir = 1; path.pulseCount++; }
+                        if (path.pulseCount >= 2) path.state = 'fading';
+                    } else if (path.state === 'fading') {
+                        path.opacity -= 0.02;
+                    }
+
+                    let currentWidth = 3;
+                    let currentBlur = 10;
+                    if (path.state === 'drawing' || path.state === 'pulsing') {
+                        currentWidth += path.pulseVal * 5; 
+                        currentBlur += path.pulseVal * 25; 
+                    }
+
+                    ctx.lineWidth = currentWidth;
+                    ctx.shadowBlur = currentBlur;
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${path.opacity})`;
+
+                    ctx.beginPath();
+                    ctx.moveTo(path.points[0].x, path.points[0].y);
+                    for (let j = 1; j < path.points.length; j++) { ctx.lineTo(path.points[j].x, path.points[j].y); }
+                    ctx.stroke();
+
+                    if (path.opacity <= 0) paths.splice(i, 1);
+                }
+                requestAnimationFrame(animateDrawing);
+            }
+
+            // 6. LIVE CLOCK
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', { 
+                    hour12: false, 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit' 
+                });
+                const clockEl = document.getElementById('live-clock');
+                if(clockEl) clockEl.innerText = timeString;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // 7. TEAM EDITORIAL SWAP
+            const teamMembers = document.querySelectorAll('.team-member');
+            const teamSection = document.getElementById('team-section');
+            const previewImg = document.getElementById('preview-img');
+            const previewQuote = document.getElementById('preview-quote');
+
+            teamMembers.forEach(member => {
+                member.addEventListener('mouseenter', () => {
+                    const img = member.getAttribute('data-img');
+                    const quote = member.getAttribute('data-tagline');
+                    previewImg.src = img;
+                    previewQuote.innerText = quote;
+                    teamSection.classList.add('showing-member');
+                });
+
+                member.addEventListener('mouseleave', () => {
+                    teamSection.classList.remove('showing-member');
+                });
+            });
+
+            // 8. Form Logic (Navigation)
+            window.nextStep = function(current) {
+                const currentStep = document.getElementById(`step-${current}`);
+                const nextStep = document.getElementById(`step-${current + 1}`);
+                if(currentStep && nextStep) {
+                    currentStep.classList.add('opacity-0', 'translate-y-10');
+                    setTimeout(() => {
+                        currentStep.classList.add('hidden');
+                        nextStep.classList.remove('hidden');
+                        setTimeout(() => {
+                            nextStep.classList.remove('opacity-0', 'translate-y-10');
+                        }, 50);
+                    }, 500);
+                }
+            };
+
+            // 9. FORM SUCCESS LOGIC (NEW)
+            window.submitForm = function() {
+                const step3 = document.getElementById('step-3');
+                const stepSuccess = document.getElementById('step-success');
+                
+                // Hide Step 3
+                step3.classList.add('opacity-0', 'translate-y-10');
+                
+                setTimeout(() => {
+                    step3.classList.add('hidden');
+                    stepSuccess.classList.remove('hidden');
+                    
+                    // Reveal Success Message
+                    setTimeout(() => {
+                        stepSuccess.classList.remove('opacity-0', 'translate-y-10');
+                    }, 50);
+                }, 500);
+            };
+
+            // ENTER KEY LISTENERS (Updated)
+            const inputName = document.getElementById('input-name');
+            const inputEmail = document.getElementById('input-email');
+
+            if(inputName) {
+                inputName.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); 
+                        nextStep(1);
+                    }
+                });
+            }
+
+            if(inputEmail) {
+                inputEmail.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitForm(); // Triggers the success animation
+                    }
+                });
+            }
+
+            // 10. Service Selection
+            const serviceOpts = document.querySelectorAll('.service-opt');
+            serviceOpts.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    opt.classList.toggle('border-white/20');
+                    opt.classList.toggle('border-red-600');
+                    opt.classList.toggle('text-red-600');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
