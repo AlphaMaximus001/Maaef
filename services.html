@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maaef Studios | Engineering Attention</title>
+    <title>Maaef Studios | Services</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -73,31 +73,6 @@
             mix-blend-mode: difference;
         }
 
-        /* --- TEXT GLOW --- */
-        .glow-active {
-            text-shadow: 0 0 10px var(--brand-red), 0 0 30px var(--brand-red), 0 0 50px var(--brand-red);
-            color: white;
-            transition: all 0.2s ease;
-        }
-        
-        .glow-white:hover {
-            text-shadow: 0 0 10px white, 0 0 20px white;
-            color: white;
-        }
-
-        /* --- HERO FOG EFFECT --- */
-        .video-fog {
-            filter: blur(20px) brightness(0.4);
-            transform: scale(1.1);
-            transition: all 0.6s ease-out;
-            will-change: filter, transform;
-        }
-
-        .video-fog.is-active {
-            filter: blur(0px) brightness(1.0) !important;
-            transform: scale(1.0) !important;
-        }
-
         /* --- KINETIC MENU --- */
         #kinetic-menu {
             transform: translateY(-100%);
@@ -109,7 +84,6 @@
             transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Drawing Canvas inside Menu */
         #drawing-canvas {
             position: absolute;
             top: 0;
@@ -119,6 +93,29 @@
             z-index: 5; 
             pointer-events: auto; 
             cursor: crosshair;
+        }
+        
+        /* --- ACCORDION LIST STYLES (SPOTLIGHT) --- */
+        .accordion-item {
+            transition: all 0.4s ease;
+        }
+        .accordion-img {
+            height: 0;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .accordion-item:hover .accordion-img {
+            height: 300px;
+            opacity: 1;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .spotlight-group:hover .accordion-item {
+            opacity: 0.3;
+        }
+        .spotlight-group:hover .accordion-item:hover {
+            opacity: 1;
+            border-color: #C41E3A;
         }
         
         ::-webkit-scrollbar { width: 0px; }
@@ -172,48 +169,55 @@
         </div>
     </div>
 
-    <section class="relative h-screen flex flex-col justify-center px-6 md:px-12 overflow-hidden">
-        <div class="absolute inset-0 z-0 pointer-events-none">
-            <video id="hero-video" autoplay loop muted playsinline class="video-fog w-full h-full object-cover">
-                <source src="trailer.mp4" type="video/mp4">
-            </video>
+    <section id="work" class="py-24 md:py-36 px-6 md:px-12 bg-[#050505] relative z-20">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-white/10 pb-12">
+            <h2 class="serif text-5xl md:text-7xl">Core<br>Expertise.</h2>
+            <div class="max-w-md text-right mt-8 md:mt-0">
+                <p class="text-gray-400 text-sm leading-relaxed border-r-2 border-red-600 pr-6">
+                    Mastering the three pillars of modern retention.<br>
+                    Hover below to explore.
+                </p>
+            </div>
         </div>
-        <div id="hero-wrapper" class="relative z-30 mt-10 md:mt-20 w-fit cursor-pointer">
-            <h1 id="hero-header" class="hover-trigger w-fit serif text-6xl md:text-9xl mb-4 md:mb-6 leading-[0.9] mix-blend-overlay opacity-90 transition-all duration-300">
-                <a href="https://www.instagram.com/maaef.studios/" target="_blank" rel="noopener noreferrer" class="block">
-                    <span id="scramble-text">Maaef</span><br>
-                    <span class="italic text-white opacity-100">Studios.</span>
-                </a>
-            </h1>
-            <p class="text-gray-300 text-base md:text-xl max-w-lg font-light leading-relaxed border-l-2 border-red-600 pl-6 mt-6 md:mt-8 pointer-events-none">
-                We engineer attention. A new-era media house.
-            </p>
-        </div>
-    </section>
-
-    <section class="py-24 md:py-36 px-6 md:px-12 bg-neutral-900 text-white relative z-20">
-        <div class="text-center">
-            <h2 class="serif text-4xl md:text-6xl mb-8 leading-tight text-neutral-500">
-                A New-Era Media House
-            </h2>
-            <p class="text-gray-400 text-lg leading-relaxed max-w-3xl mx-auto mb-16">
-                Maaef Studios is a creative agency specializing in video production, branding, and social media growth. We are lean, hyper-specialized crews—no bloat, no middle-management, just pure creative execution.
-            </p>
-            <div class="flex flex-col md:flex-row justify-center items-center gap-8">
-                <a href="about.html" class="group hover-trigger">
-                    <span class="serif text-3xl md:text-4xl text-white group-hover:text-red-600 transition-colors">The Collective</span>
-                    <p class="text-sm text-gray-500 group-hover:text-white transition-colors">Meet the artists</p>
-                </a>
-                <span class="hidden md:block h-16 w-px bg-white/10"></span>
-                <a href="services.html" class="group hover-trigger">
-                    <span class="serif text-3xl md:text-4xl text-white group-hover:text-red-600 transition-colors">Our Expertise</span>
-                    <p class="text-sm text-gray-500 group-hover:text-white transition-colors">See what we do</p>
-                </a>
-                <span class="hidden md:block h-16 w-px bg-white/10"></span>
-                <a href="contact.html" class="group hover-trigger">
-                    <span class="serif text-3xl md:text-4xl text-white group-hover:text-red-600 transition-colors">Start a Project</span>
-                    <p class="text-sm text-gray-500 group-hover:text-white transition-colors">Let's talk</p>
-                </a>
+        <div class="flex flex-col spotlight-group">
+            <div class="accordion-item border-b border-white/10 py-8 cursor-pointer hover-trigger group">
+                <div class="flex justify-between items-center">
+                    <h3 class="serif text-4xl md:text-6xl text-white transition-colors duration-300">
+                        <span class="text-xs font-sans align-top mr-4 opacity-50 text-gray-400">01</span>
+                        Visual Rhythm
+                    </h3>
+                    <span class="text-3xl text-white font-light group-hover:text-red-600 group-hover:rotate-45 transition-all duration-300">+</span>
+                </div>
+                <div class="accordion-img w-full md:w-2/3 ml-auto relative overflow-hidden rounded-sm">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Editing">
+                    <div class="absolute bottom-6 left-6 text-white bg-black/50 backdrop-blur px-4 py-2 text-xs uppercase tracking-widest">Pacing • Transitions • Flow</div>
+                </div>
+            </div>
+            <div class="accordion-item border-b border-white/10 py-8 cursor-pointer hover-trigger group">
+                <div class="flex justify-between items-center">
+                    <h3 class="serif text-4xl md:text-6xl text-white transition-colors duration-300">
+                        <span class="text-xs font-sans align-top mr-4 opacity-50 text-gray-400">02</span>
+                        Sonic Depth
+                    </h3>
+                    <span class="text-3xl text-white font-light group-hover:text-red-600 group-hover:rotate-45 transition-all duration-300">+</span>
+                </div>
+                <div class="accordion-img w-full md:w-2/3 ml-auto relative overflow-hidden rounded-sm">
+                    <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Sound">
+                    <div class="absolute bottom-6 left-6 text-white bg-black/50 backdrop-blur px-4 py-2 text-xs uppercase tracking-widest">SFX • Immersion • Mastering</div>
+                </div>
+            </div>
+            <div class="accordion-item border-b border-white/10 py-8 cursor-pointer hover-trigger group">
+                <div class="flex justify-between items-center">
+                    <h3 class="serif text-4xl md:text-6xl text-white transition-colors duration-300">
+                        <span class="text-xs font-sans align-top mr-4 opacity-50 text-gray-400">03</span>
+                        Color Science
+                    </h3>
+                    <span class="text-3xl text-white font-light group-hover:text-red-600 group-hover:rotate-45 transition-all duration-300">+</span>
+                </div>
+                <div class="accordion-img w-full md:w-2/3 ml-auto relative overflow-hidden rounded-sm">
+                    <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Color">
+                    <div class="absolute bottom-6 left-6 text-white bg-black/50 backdrop-blur px-4 py-2 text-xs uppercase tracking-widest">Grading • Mood • Identity</div>
+                </div>
             </div>
         </div>
     </section>
@@ -249,56 +253,7 @@
                 trigger.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
             });
 
-            // 3. INFINITE GLITCH LOGIC
-            const headerText = document.getElementById('scramble-text');
-            const headerContainer = document.getElementById('hero-header');
-            const chars = '!<>-_\/[]{}—=+*^?#________';
-            const finalCookie = 'Maaef';
-            let glitchInterval;
-
-            function randomScramble() {
-                headerText.innerText = finalCookie.split('').map(() => {
-                    return chars[Math.floor(Math.random() * chars.length)]
-                }).join('');
-            }
-
-            function resolveText() {
-                let iterations = 0;
-                const interval = setInterval(() => {
-                    headerText.innerText = finalCookie.split('').map((letter, index) => {
-                        if(index < iterations) return finalCookie[index];
-                        return chars[Math.floor(Math.random() * chars.length)]
-                    }).join('');
-                    if(iterations >= finalCookie.length) clearInterval(interval);
-                    iterations += 1/3;
-                }, 30);
-            }
-
-            resolveText();
-
-            if(headerContainer) {
-                headerContainer.addEventListener('mouseenter', () => {
-                    headerContainer.classList.add('glow-active');
-                    clearInterval(glitchInterval);
-                    glitchInterval = setInterval(randomScramble, 50);
-                });
-
-                headerContainer.addEventListener('mouseleave', () => {
-                    headerContainer.classList.remove('glow-active');
-                    clearInterval(glitchInterval);
-                    resolveText();
-                });
-            }
-
-            // 4. HERO VIDEO REVEAL
-            const heroWrapper = document.getElementById('hero-wrapper');
-            const heroVideo = document.getElementById('hero-video');
-            if (heroWrapper && heroVideo) {
-                heroWrapper.addEventListener('mouseenter', () => heroVideo.classList.add('is-active'));
-                heroWrapper.addEventListener('mouseleave', () => heroVideo.classList.remove('is-active'));
-            }
-
-            // 5. KINETIC MENU & NEON DRAWING
+            // 3. KINETIC MENU & NEON DRAWING
             const menu = document.getElementById('kinetic-menu');
             const canvas = document.getElementById('drawing-canvas');
             const ctx = canvas.getContext('2d');
@@ -388,7 +343,7 @@
                 requestAnimationFrame(animateDrawing);
             }
 
-            // 6. LIVE CLOCK
+            // 4. LIVE CLOCK
             function updateClock() {
                 const now = new Date();
                 const timeString = now.toLocaleTimeString('en-US', { 
@@ -403,6 +358,23 @@
             }
             setInterval(updateClock, 1000);
             updateClock();
+
+            // 5. ACCORDION
+            document.querySelectorAll('.accordion-item').forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    item.querySelector('.accordion-img').style.height = '300px';
+                    item.querySelector('.accordion-img').style.opacity = 1;
+                    item.querySelector('.accordion-img').style.marginTop = '2rem';
+                    item.querySelector('.accordion-img').style.marginBottom = '2rem';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.querySelector('.accordion-img').style.height = '0';
+                    item.querySelector('.accordion-img').style.opacity = 0;
+                    item.querySelector('..accordion-img').style.marginTop = '0';
+                    item.querySelector('.accordion-img').style.marginBottom = '0';
+                });
+            });
+
         });
     </script>
 </body>
